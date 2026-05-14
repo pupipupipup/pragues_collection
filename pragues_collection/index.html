@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prague Collection</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet"/>
+
+  <!-- p5.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <style>
+    /* ─── RESET & BASE ─── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black:   #111111;
+      --white:   #F5F5F3;
+      --gray:    #8A8A8A;
+      --accent:  #E63946;
+      --light:   #EFEFED;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--white);
+      color: var(--black);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVIGATION ─── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 48px;
+      background: rgba(245, 245, 243, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    /* ─── HERO / CANVAS SECTION ─── */
+    #hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #hero canvas {
+      display: block;
+    }
+
+    /* Text overlay on canvas */
+    .hero-overlay {
+      position: absolute;
+      bottom: 48px;
+      left: 48px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .hero-overlay p {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+    }
+
+    .hero-overlay h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 300;
+      color: #ffffff;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-overlay h1 strong {
+      font-weight: 700;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 48px;
+      right: 48px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .scroll-hint span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: rgba(255,255,255,0.4);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(0.6); }
+    }
+
+    /* Mouse instruction */
+    .mouse-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      text-align: center;
+      pointer-events: none;
+      animation: fadeHint 4s ease forwards;
+    }
+
+    .mouse-hint p {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+
+    @keyframes fadeHint {
+      0%   { opacity: 1; }
+      60%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* ─── INTRO STRIP ─── */
+    #intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 80px 48px;
+      background: var(--black);
+      color: var(--white);
+      gap: 48px;
+    }
+
+    .intro-left h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 300;
+      line-height: 1.2;
+      max-width: 480px;
+    }
+
+    .intro-left h2 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .intro-right {
+      max-width: 380px;
+    }
+
+    .intro-right p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: rgba(245,245,243,0.65);
+      margin-bottom: 28px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1.5px solid var(--white);
+      color: var(--white);
+      transition: all 0.25s;
+    }
+
+    .btn:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
+    .btn-accent:hover {
+      background: transparent;
+      color: var(--accent);
+    }
+
+    /* ─── SERVICES ─── */
+    #services {
+      padding: 100px 48px;
+      background: var(--light);
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 300;
+      margin-bottom: 64px;
+      max-width: 400px;
+      line-height: 1.2;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      background: var(--white);
+      padding: 48px 36px;
+      transition: transform 0.25s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .service-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--accent);
+      opacity: 0.15;
+      margin-bottom: 24px;
+    }
+
+    .service-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.02em;
+    }
+
+    .service-card p {
+      font-size: 0.88rem;
+      color: var(--gray);
+      line-height: 1.75;
+    }
+
+    /* ─── MARQUEE / TICKER ─── */
+    .marquee-wrap {
+      overflow: hidden;
+      background: var(--accent);
+      padding: 18px 0;
+      white-space: nowrap;
+    }
+
+    .marquee-track {
+      display: inline-block;
+      animation: marquee 18s linear infinite;
+    }
+
+    .marquee-track span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin: 0 32px;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── ARTISTS PREVIEW ─── */
+    #artists {
+      padding: 100px 48px;
+      background: var(--white);
+    }
+
+    .artists-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 64px;
+    }
+
+    .artist-card {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background: var(--light);
+      cursor: pointer;
+    }
+
+    .artist-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+      display: block;
+    }
+
+    /* Placeholder if no image */
+    .artist-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ddd 0%, #bbb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .artist-card:hover .artist-card-img {
+      transform: scale(1.04);
+    }
+
+    .artist-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 28px 24px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.75));
+      color: white;
+    }
+
+    .artist-info h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .artist-info p {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      opacity: 0.75;
+      text-transform: uppercase;
+    }
+
+    /* ─── EVENTS STRIP ─── */
+    #events {
+      padding: 100px 48px;
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .events-list {
+      margin-top: 64px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .event-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      transition: padding-left 0.25s;
+      cursor: pointer;
+    }
+
+    .event-item:hover {
+      padding-left: 16px;
+    }
+
+    .event-date {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-transform: uppercase;
+      min-width: 120px;
+    }
+
+    .event-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 500;
+      flex: 1;
+      padding: 0 32px;
+    }
+
+    .event-type {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    /* ─── CONTACT / FOOTER ─── */
+    #contact {
+      padding: 100px 48px 64px;
+      background: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 48px;
+    }
+
+    .contact-left h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 300;
+      max-width: 400px;
+      line-height: 1.2;
+      margin-bottom: 32px;
+    }
+
+    .contact-left h2 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .contact-detail {
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+      color: var(--gray);
+      letter-spacing: 0.04em;
+    }
+
+    .contact-detail strong {
+      color: var(--black);
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .contact-right {
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 14px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      border: none;
+      border-bottom: 1.5px solid #ddd;
+      background: transparent;
+      color: var(--black);
+      outline: none;
+      margin-bottom: 28px;
+      transition: border-color 0.2s;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .contact-form textarea {
+      resize: none;
+      height: 100px;
+    }
+
+    footer {
+      padding: 24px 48px;
+      background: var(--black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer p {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.1em;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .social-links a {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .social-links a:hover {
+      color: var(--accent);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+
+      .hero-overlay { left: 24px; bottom: 32px; }
+      .scroll-hint  { right: 24px; bottom: 32px; }
+
+      #intro        { flex-direction: column; padding: 60px 24px; }
+      #services     { padding: 60px 24px; }
+      .services-grid { grid-template-columns: 1fr; gap: 2px; }
+
+      #artists      { padding: 60px 24px; }
+      .artists-grid  { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+      #events       { padding: 60px 24px; }
+      .event-name   { font-size: 0.9rem; padding: 0 16px; }
+
+      #contact      { flex-direction: column; padding: 60px 24px; }
+      footer        { flex-direction: column; gap: 12px; padding: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════ NAVIGATION -->
+  <nav>
+    <a class="logo" href="#">Prague<span>.</span>Collection</a>
+    <ul class="nav-links">
+      <li><a href="#artists">Artists</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══════════════════════════════ HERO (p5.js canvas) -->
+  <section id="hero">
+    <div class="hero-overlay">
+      <p>Prague — Street Art Studio</p>
+      <h1>Where walls<br/><strong>become canvas</strong></h1>
+    </div>
+    <div class="mouse-hint">
+      <p>Move your mouse to paint</p>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>Custom Prints</span><span>·</span>
+      <span>Fresh Graffiti</span><span>·</span>
+      <span>Bring Your Clothes</span><span>·</span>
+      <span>Prague Artists</span><span>·</span>
+      <span>Street Art Workshops</span><span>·</span>
+      <span>Limited Editions</span><span>·</span>
+      <span>Custom Prints</span><span>·</span>
+      <span>·</span>
+      <span>Fresh Graffiti</span><span>·</span>
+      <span>Bring Your Clothes</span><span>·</span>
+      <span>Prague Artists</span><span>·</span>
+      <span>Street Art Workshops</span><span>·</span>
+      <span>Limited Editions</span><span>·</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ INTRO -->
+  <section id="intro">
+    <div class="intro-left">
+      <h2>Street art.<br/>Reimagined as<br/><em>wearable culture.</em></h2>
+    </div>
+    <div class="intro-right">
+      <p>
+        Prague Collection is a street art studio in the heart of Prague. 
+        We work with local artists to bring authentic graffiti culture 
+        to your wardrobe — one piece at a time.
+      </p>
+      <p>
+        Bring us your jacket, your bag, your shoes. 
+        We'll bring the art.
+      </p>
+      <a href="#services" class="btn">See What We Do</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SERVICES -->
+  <section id="services">
+    <p class="section-label">What We Offer</p>
+    <h2 class="section-title">Three ways to wear the streets</h2>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-number">01</div>
+        <h3>Fresh Graffiti</h3>
+        <p>
+          Bring in any piece of clothing or item and our artists 
+          will paint directly on it. One-of-a-kind, made for you, 
+          never repeated.
+        </p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">02</div>
+        <h3>Graffiti Prints</h3>
+        <p>
+          Choose from our curated collection of designs by Prague 
+          artists. Printed on demand, high quality, ships worldwide.
+        </p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">03</div>
+        <h3>Workshops & Events</h3>
+        <p>
+          Learn the craft from local legends. 
+          Private sessions, group workshops, and 
+          corporate events available year-round.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ ARTISTS -->
+  <section id="artists">
+    <p class="section-label">The Crew</p>
+    <h2 class="section-title">Meet the artists</h2>
+
+    <div class="artists-grid">
+
+      <!-- Artist 1 - replace src with real photo -->
+      <div class="artist-card">
+        <div class="artist-placeholder">🎨</div>
+        <div class="artist-info">
+          <h3>Artist Name</h3>
+          <p>Lettering · Murals</p>
+        </div>
+      </div>
+
+      <!-- Artist 2 -->
+      <div class="artist-card">
+        <div class="artist-placeholder">🖌️</div>
+        <div class="artist-info">
+          <h3>Artist Name</h3>
+          <p>Characters · Tags</p>
+        </div>
+      </div>
+
+      <!-- Artist 3 -->
+      <div class="artist-card">
+        <div class="artist-placeholder">✏️</div>
+        <div class="artist-info">
+          <h3>Artist Name</h3>
+          <p>Stencils · Fine Art</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ EVENTS -->
+  <section id="events">
+    <p class="section-label">What's On</p>
+    <h2 class="section-title" style="color:var(--white)">Upcoming events</h2>
+
+    <div class="events-list">
+      <div class="event-item">
+        <span class="event-date">Jan 18, 2025</span>
+        <span class="event-name">Open Studio Night</span>
+        <span class="event-type">Free Entry</span>
+      </div>
+      <div class="event-item">
+        <span class="event-date">Feb 01, 2025</span>
+        <span class="event-name">Graffiti Basics Workshop</span>
+        <span class="event-type">Workshop</span>
+      </div>
+      <div class="event-item">
+        <span class="event-date">Feb 14, 2025</span>
+        <span class="event-name">Valentine's Custom Piece</span>
+        <span class="event-type">Special Event</span>
+      </div>
+      <div class="event-item">
+        <span class="event-date">Mar 08, 2025</span>
+        <span class="event-name">Spring Collection Launch</span>
+        <span class="event-type">Exhibition</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ CONTACT -->
+  <section id="contact">
+    <div class="contact-left">
+      <h2>Come visit us<br/>in <em>Prague.</em></h2>
+      <br/>
+      <div class="contact-detail">
+        <strong>Address</strong>
+        Somewhere in Prague, Czech Republic
+      </div>
+      <div class="contact-detail">
+        <strong>Hours</strong>
+        Mon–Fri 11:00–19:00 · Sat 12:00–17:00
+      </div>
+      <div class="contact-detail">
+        <strong>Email</strong>
+        hello@praguecollection.cz
+      </div>
+    </div>
+
+    <div class="contact-right">
+      <form class="contact-form">
+        <input type="text"  placeholder="Your name" />
+        <input type="email" placeholder="Your email" />
+        <textarea placeholder="Tell us about your project..."></textarea>
+        <a href="#" class="btn btn-accent">Send Message</a>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ FOOTER -->
+  <footer>
+    <p>© 2025 Prague Collection. All rights reserved.</p>
+    <div class="social-links">
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+      <a href="#">Facebook</a>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════ P5.JS SKETCH -->
+  <script>
+  new p5(function(p) {
+
+    let graffitiFonts = [];
+    let selectedWord   = "PRAGUE COLLECTION";
+    let selectedFont;
+    let wallImages     = [];
+    let backgroundImage;
+    let prevMouseX     = -1;
+    let prevMouseY     = -1;
+    let fontsLoaded    = false;
+
+    p.preload = function() {
+      // ── Wall images: swap these paths for your real images ──
+      // wallImages[0] = p.loadImage('wall1.jpg');
+      // wallImages[1] = p.loadImage('wall2.jpg');
+      // wallImages[2] = p.loadImage('wall3.jpg');
+
+      // ── Fonts: swap paths for your real font files ──
+      // graffitiFonts[0] = p.loadFont('aAnotherTag.ttf');
+      // graffitiFonts[1] = p.loadFont('Bigtimes.otf');
+      // graffitiFonts[2] = p.loadFont('don-graffiti.ttf');
+    };
+
+    p.setup = function() {
+      // Mount canvas inside the hero section
+      let hero   = document.getElementById('hero');
+      let canvas = p.createCanvas(hero.offsetWidth, hero.offsetHeight);
+      canvas.parent('hero');
+
+      p.noStroke();
+
+      // ── Background ──
+      if (wallImages.length > 0) {
+        backgroundImage = p.random(wallImages);
+        p.image(backgroundImage, 0, 0, p.width, p.height);
+      } else {
+        // Fallback dark gradient background
+        drawFallbackBackground();
+      }
+
+      // ── Font ──
+      if (graffitiFonts.length > 0) {
+        selectedFont = p.random(graffitiFonts);
+        fontsLoaded  = true;
+      }
+
+      drawGraffiti();
+    };
+
+    p.draw = function() {
+      if (
+        p.mouseX > 0 && p.mouseX < p.width &&
+        p.mouseY > 0 && p.mouseY < p.height
+      ) {
+        if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
+          for (let i = 0; i < 10; i++) {
+            let r       = p.random(5, 50);
+            let offsetX = p.random(-20, 20);
+            let offsetY = p.random(-20, 20);
+
+            let c;
+            if (p.random(1) < 0.5) {
+              c = p.color(
+                p.random(142, 247),
+                p.random(100, 245),
+                p.random(160, 245)
+              );
+            } else {
+              c = p.color(
+                p.random(200, 255),
+                p.random(219, 170),
+                p.random(209, 101)
+              );
+            }
+
+            p.noStroke();
+            p.fill(c, 90);
+            p.ellipse(
+              p.mouseX + offsetX,
+              p.mouseY + offsetY,
+              r, r
+            );
+          }
+
+          drawGraffiti();
+          prevMouseX = p.mouseX;
+          prevMouseY = p.mouseY;
+        }
+      }
+    };
+
+    // Resize canvas when window resizes
+    p.windowResized = function() {
+      let hero = document.getElementById('hero');
+      p.resizeCanvas(hero.offsetWidth, hero.offsetHeight);
+      if (wallImages.length > 0) {
+        p.image(backgroundImage, 0, 0, p.width, p.height);
+      } else {
+        drawFallbackBackground();
+      }
+      drawGraffiti();
+    };
+
+    function drawFallbackBackground() {
+      // Dark urban gradient fallback
+      for (let y = 0; y < p.height; y++) {
+        let inter = p.map(y, 0, p.height, 0, 1);
+        let c = p.lerpColor(p.color(30, 30, 30), p.color(10, 10, 10), inter);
+        p.stroke(c);
+        p.line(0, y, p.width, y);
+      }
+      p.noStroke();
+
+      // Subtle texture dots
+      for (let i = 0; i < 300; i++) {
+        p.fill(255, 255, 255, p.random(3, 12));
+        p.noStroke();
+        p.ellipse(
+          p.random(p.width),
+          p.random(p.height),
+          p.random(1, 3)
+        );
+      }
+    }
+
+    function drawGraffiti() {
+      if (fontsLoaded) {
+        outlineText(selectedWord, p.width / 2, p.height / 2, selectedFont);
+      } else {
+        // Fallback text using default font
+        outlineTextDefault(selectedWord, p.width / 2, p.height / 2);
+      }
+    }
+
+    function outlineText(txt, x, y, font) {
+      p.textFont(font);
+      p.textAlign(p.CENTER, p.CENTER);
+
+      let steps     = 6;
+      let maxOffset = 7;
+
+      for (let i = steps; i > 2; i--) {
+        let amt    = p.map(i, 1, steps, 0, 1);
+        let c      = p.lerpColor(p.color(255, 8, 28), p.color(255, 255, 255), amt);
+        let offset = p.map(i, 1, steps, 0, maxOffset);
+
+        p.fill(c);
+        p.text(txt, x + offset, y);
+        p.text(txt, x - offset, y);
+        p.text(txt, x, y + offset);
+        p.text(txt, x, y - offset);
+        p.text(txt, x + offset, y + offset);
+        p.text(txt, x - offset, y - offset);
+        p.text(txt, x + offset, y - offset);
+        p.text(txt, x - offset, y + offset);
+      }
+
+      p.fill(255);
+      p.text(txt, x, y);
+    }
+
+    function outlineTextDefault(txt, x, y) {
+      // Works without custom fonts
+      p.textSize(72);
+      p.textStyle(p.BOLD);
+      p.textAlign(p.CENTER, p.CENTER);
+
+      let steps     = 6;
+      let maxOffset = 7;
+
+      for (let i = steps; i > 2; i--) {
+        let amt    = p.map(i, 1, steps, 0, 1);
+        let c      = p.lerpColor(p.color(255, 8, 28), p.color(255, 255, 255), amt);
+        let offset = p.map(i, 1, steps, 0, maxOffset);
+
+        p.fill(c);
+        p.text(txt, x + offset, y);
+        p.text(txt, x - offset, y);
+        p.text(txt, x, y + offset);
+        p.text(txt, x, y - offset);
+        p.text(txt, x + offset, y + offset);
+        p.text(txt, x - offset, y - offset);
+        p.text(txt, x + offset, y - offset);
+        p.text(txt, x - offset, y + offset);
+      }
+
+      p.fill(255);
+      p.text(txt, x, y);
+    }
+
+  }); // end p5
+  </script>
+
+</body>
+</html>
