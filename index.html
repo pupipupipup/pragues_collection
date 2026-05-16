@@ -843,14 +843,14 @@ new p5(function(p) {
     ) {
       if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
         
-        for (let i = 0; i < 450; i++) {  // ← MORE circles (was 80, now 200)
+        for (let i = 0; i < 500; i++) {  // ← MORE circles (was 80, now 200)
   
   let angle = p.random(p.TWO_PI);
   let distance = p.random(0, 80);  // ← slightly tighter spread
   let offsetX = p.cos(angle) * distance;
   let offsetY = p.sin(angle) * distance;
   
-  let r = p.random(1, 8);  // ← MUCH SMALLER (was 1-15, now 1-6)
+  let r = p.random(1, 6);  // ← MUCH SMALLER (was 1-15, now 1-6)
   
   // WHITE ONLY
   let c = p.color(255, 255, 255);  // ← Pure white
