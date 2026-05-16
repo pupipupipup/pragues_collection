@@ -842,40 +842,69 @@
       drawGraffiti();
     };
 
-    p.draw = function() {
-      if (
-        p.mouseX > 0 && p.mouseX < p.width &&
-        p.mouseY > 0 && p.mouseY < p.height
-      ) {
-        if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
-          for (let i = 0; i < 60; i++) {
-            let r       = p.random(2, 25);
-            let offsetX = p.random(-80, 80);
-            let offsetY = p.random(-80, 80);
+   p.draw = function() {
+  if (
+    p.mouseX > 0 && p.mouseX < p.width &&
+    p.mouseY > 0 && p.mouseY < p.height
+  ) {
+    if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
+      
+      // More particles for denser spray
+      for (let i = 0; i < 80; i++) {
+        
+        // Spray spreads in a circular pattern (more realistic)
+        let angle = p.random(p.TWO_PI);
+        let distance = p.random(0, 100);  // varies from center
+        let offsetX = p.cos(angle) * distance;
+        let offsetY = p.sin(angle) * distance;
+        
+        // Particle size - smaller particles, more variety
+        let r = p.random(1, 15);
+        
+        // Color variation - more red tones
+        let c;
+        if (p.random(1) < 0.6) {
+          // Bright red/pink (70% chance)
+          c = p.color(
+            p.random(230, 255),
+            p.random(15, 60),
+            p.random(40, 100)
+          );
+        } else if (p.random(1) < 0.5) {
+          // Dark red (20% chance)
+          c = p.color(
+            p.random(180, 220),
+            p.random(5, 40),
+            p.random(5, 40)
+          );
+        } else {
+          // White/light spray (10% chance - adds highlights)
+          c = p.color(
+            p.random(240, 255),
+            p.random(200, 255),
+            p.random(200, 255)
+          );
+        }
 
-            let c; //farba spreju
-            if (p.random(1) < 0.5) {
-              c = p.color( //cervene tmave odtiene
-                p.random(200, 255),
-                p.random(10, 50),
-                p.random(10, 50)
-              ); //highlighs
-            } else {
-              c = p.color(
-                p.random(230, 255),
-                p.random(20, 80),
-                p.random(50, 120)
-              );
-            }
+        // Opacity varies by particle size (smaller = more transparent)
+        let opacity = p.map(r, 1, 15, 15, 50);
+        
+        p.noStroke();
+        p.fill(c, opacity);
+        p.ellipse(
+          p.mouseX + offsetX,
+          p.mouseY + offsetY,
+          r, r
+        );
+      }
 
-            p.noStroke();
-            p.fill(c, 40); //opacity
-            p.ellipse(
-              p.mouseX + offsetX,
-              p.mouseY + offsetY,
-              r, r
-            );
-          }
+      drawGraffiti();
+      prevMouseX = p.mouseX;
+      prevMouseY = p.mouseY;
+    }
+  }
+};
+
 
           drawGraffiti();
           prevMouseX = p.mouseX;
@@ -930,6 +959,7 @@
     function outlineText(txt, x, y, font) {
       p.textFont(font);
       p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(100);
 
       let steps     = 6;
       let maxOffset = 7;
