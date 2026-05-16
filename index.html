@@ -959,7 +959,6 @@
     function outlineText(txt, x, y, font) {
       p.textFont(font);
       p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(100);
 
       let steps     = 6;
       let maxOffset = 7;
@@ -986,7 +985,7 @@
 
     function outlineTextDefault(txt, x, y) {
       // Works without custom fonts
-      p.textSize(72);
+      p.textSize(300);
       p.textStyle(p.BOLD);
       p.textAlign(p.CENTER, p.CENTER);
 
