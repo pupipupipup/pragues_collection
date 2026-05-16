@@ -792,229 +792,202 @@
   </footer>
 
   <!-- ═══════════════════════════════ P5.JS SKETCH -->
-  <script>
-  new p5(function(p) {
+<script>
+new p5(function(p) {
 
-    let graffitiFonts = [];
-    let selectedWord   = "PRAGUE COLLECTION";
-    let selectedFont;
-    let wallImages     = [];
-    let backgroundImage;
-    let prevMouseX     = -1;
-    let prevMouseY     = -1;
-    let fontsLoaded    = false;
+  let graffitiFonts = [];
+  let selectedWord   = "PRAGUE COLLECTION";
+  let selectedFont;
+  let wallImages     = [];
+  let backgroundImage;
+  let prevMouseX     = -1;
+  let prevMouseY     = -1;
+  let fontsLoaded    = false;
 
-    p.preload = function() {
-      // ── Wall images: swap these paths for your real images ──
-      wallImages[0] = p.loadImage('wall1.jpg');
-      wallImages[1] = p.loadImage('wall2.jpg');
-      wallImages[2] = p.loadImage('wall3.jpg');
+  p.preload = function() {
+    wallImages[0] = p.loadImage('wall1.jpg');
+    wallImages[1] = p.loadImage('wall2.jpg');
+    wallImages[2] = p.loadImage('wall3.jpg');
 
-      // ── Fonts: swap paths for your real font files ──
-      graffitiFonts[0] = p.loadFont('aAnotherTag.ttf');
-      graffitiFonts[1] = p.loadFont('Bigtimes.otf');
-      graffitiFonts[2] = p.loadFont('don-graffiti.ttf');
-    };
+    graffitiFonts[0] = p.loadFont('aAnotherTag.ttf');
+    graffitiFonts[1] = p.loadFont('Bigtimes.otf');
+    graffitiFonts[2] = p.loadFont('don-graffiti.ttf');
+  };
 
-    p.setup = function() {
-      // Mount canvas inside the hero section
-      let hero   = document.getElementById('hero');
-      let canvas = p.createCanvas(hero.offsetWidth, hero.offsetHeight);
-      canvas.parent('hero');
+  p.setup = function() {
+    let hero   = document.getElementById('hero');
+    let canvas = p.createCanvas(hero.offsetWidth, hero.offsetHeight);
+    canvas.parent('hero');
 
-      p.noStroke();
+    p.noStroke();
 
-      // ── Background ──
-      if (wallImages.length > 0) {
-        backgroundImage = p.random(wallImages);
-        p.image(backgroundImage, 0, 0, p.width, p.height);
-      } else {
-        // Fallback dark gradient background
-        drawFallbackBackground();
-      }
+    if (wallImages.length > 0) {
+      backgroundImage = p.random(wallImages);
+      p.image(backgroundImage, 0, 0, p.width, p.height);
+    } else {
+      drawFallbackBackground();
+    }
 
-      // ── Font ──
-      if (graffitiFonts.length > 0) {
-        selectedFont = p.random(graffitiFonts);
-        fontsLoaded  = true;
-      }
+    if (graffitiFonts.length > 0) {
+      selectedFont = p.random(graffitiFonts);
+      fontsLoaded  = true;
+    }
 
-      drawGraffiti();
-    };
+    drawGraffiti();
+  };
 
-   p.draw = function() {
-  if (
-    p.mouseX > 0 && p.mouseX < p.width &&
-    p.mouseY > 0 && p.mouseY < p.height
-  ) {
-    if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
-      
-      // More particles for denser spray
-      for (let i = 0; i < 80; i++) {
+  p.draw = function() {
+    if (
+      p.mouseX > 0 && p.mouseX < p.width &&
+      p.mouseY > 0 && p.mouseY < p.height
+    ) {
+      if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
         
-        // Spray spreads in a circular pattern (more realistic)
-        let angle = p.random(p.TWO_PI);
-        let distance = p.random(0, 100);  // varies from center
-        let offsetX = p.cos(angle) * distance;
-        let offsetY = p.sin(angle) * distance;
-        
-        // Particle size - smaller particles, more variety
-        let r = p.random(1, 15);
-        
-        // Color variation - more red tones
-        let c;
-        if (p.random(1) < 0.6) {
-          // Bright red/pink (70% chance)
-          c = p.color(
-            p.random(230, 255),
-            p.random(15, 60),
-            p.random(40, 100)
-          );
-        } else if (p.random(1) < 0.5) {
-          // Dark red (20% chance)
-          c = p.color(
-            p.random(180, 220),
-            p.random(5, 40),
-            p.random(5, 40)
-          );
-        } else {
-          // White/light spray (10% chance - adds highlights)
-          c = p.color(
-            p.random(240, 255),
-            p.random(200, 255),
-            p.random(200, 255)
+        for (let i = 0; i < 80; i++) {
+          let angle = p.random(p.TWO_PI);
+          let distance = p.random(0, 100);
+          let offsetX = p.cos(angle) * distance;
+          let offsetY = p.sin(angle) * distance;
+          
+          let r = p.random(1, 15);
+          
+          let c;
+          if (p.random(1) < 0.6) {
+            c = p.color(
+              p.random(230, 255),
+              p.random(15, 60),
+              p.random(40, 100)
+            );
+          } else if (p.random(1) < 0.5) {
+            c = p.color(
+              p.random(180, 220),
+              p.random(5, 40),
+              p.random(5, 40)
+            );
+          } else {
+            c = p.color(
+              p.random(240, 255),
+              p.random(200, 255),
+              p.random(200, 255)
+            );
+          }
+
+          let opacity = p.map(r, 1, 15, 15, 50);
+          
+          p.noStroke();
+          p.fill(c, opacity);
+          p.ellipse(
+            p.mouseX + offsetX,
+            p.mouseY + offsetY,
+            r, r
           );
         }
 
-        // Opacity varies by particle size (smaller = more transparent)
-        let opacity = p.map(r, 1, 15, 15, 50);
-        
-        p.noStroke();
-        p.fill(c, opacity);
-        p.ellipse(
-          p.mouseX + offsetX,
-          p.mouseY + offsetY,
-          r, r
-        );
+        drawGraffiti();
+        prevMouseX = p.mouseX;
+        prevMouseY = p.mouseY;
       }
+    }
+  };
 
-      drawGraffiti();
-      prevMouseX = p.mouseX;
-      prevMouseY = p.mouseY;
+  p.windowResized = function() {
+    let hero = document.getElementById('hero');
+    p.resizeCanvas(hero.offsetWidth, hero.offsetHeight);
+    if (wallImages.length > 0) {
+      p.image(backgroundImage, 0, 0, p.width, p.height);
+    } else {
+      drawFallbackBackground();
+    }
+    drawGraffiti();
+  };
+
+  function drawFallbackBackground() {
+    for (let y = 0; y < p.height; y++) {
+      let inter = p.map(y, 0, p.height, 0, 1);
+      let c = p.lerpColor(p.color(30, 30, 30), p.color(10, 10, 10), inter);
+      p.stroke(c);
+      p.line(0, y, p.width, y);
+    }
+    p.noStroke();
+
+    for (let i = 0; i < 300; i++) {
+      p.fill(255, 255, 255, p.random(3, 12));
+      p.noStroke();
+      p.ellipse(
+        p.random(p.width),
+        p.random(p.height),
+        p.random(1, 3)
+      );
     }
   }
-};
 
+  function drawGraffiti() {
+    if (fontsLoaded) {
+      outlineText(selectedWord, p.width / 2, p.height / 2, selectedFont);
+    } else {
+      outlineTextDefault(selectedWord, p.width / 2, p.height / 2);
+    }
+  }
 
-          drawGraffiti();
-          prevMouseX = p.mouseX;
-          prevMouseY = p.mouseY;
-        }
-      }
-    };
+  function outlineText(txt, x, y, font) {
+    p.textFont(font);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(80);  // ← SET SIZE HERE (before drawing)
 
-    // Resize canvas when window resizes
-    p.windowResized = function() {
-      let hero = document.getElementById('hero');
-      p.resizeCanvas(hero.offsetWidth, hero.offsetHeight);
-      if (wallImages.length > 0) {
-        p.image(backgroundImage, 0, 0, p.width, p.height);
-      } else {
-        drawFallbackBackground();
-      }
-      drawGraffiti();
-    };
+    let steps     = 6;
+    let maxOffset = 7;
 
-    function drawFallbackBackground() {
-      // Dark urban gradient fallback
-      for (let y = 0; y < p.height; y++) {
-        let inter = p.map(y, 0, p.height, 0, 1);
-        let c = p.lerpColor(p.color(30, 30, 30), p.color(10, 10, 10), inter);
-        p.stroke(c);
-        p.line(0, y, p.width, y);
-      }
-      p.noStroke();
+    for (let i = steps; i > 2; i--) {
+      let amt    = p.map(i, 1, steps, 0, 1);
+      let c      = p.lerpColor(p.color(255, 8, 28), p.color(255, 255, 255), amt);
+      let offset = p.map(i, 1, steps, 0, maxOffset);
 
-      // Subtle texture dots
-      for (let i = 0; i < 300; i++) {
-        p.fill(255, 255, 255, p.random(3, 12));
-        p.noStroke();
-        p.ellipse(
-          p.random(p.width),
-          p.random(p.height),
-          p.random(1, 3)
-        );
-      }
+      p.fill(c);
+      p.text(txt, x + offset, y);
+      p.text(txt, x - offset, y);
+      p.text(txt, x, y + offset);
+      p.text(txt, x, y - offset);
+      p.text(txt, x + offset, y + offset);
+      p.text(txt, x - offset, y - offset);
+      p.text(txt, x + offset, y - offset);
+      p.text(txt, x - offset, y + offset); 
     }
 
-    function drawGraffiti() {
-      if (fontsLoaded) {
-        outlineText(selectedWord, p.width / 2, p.height / 2, selectedFont);
-      } else {
-        // Fallback text using default font
-        outlineTextDefault(selectedWord, p.width / 2, p.height / 2);
-      }
+    p.fill(255);
+    p.text(txt, x, y);
+  }
+
+  function outlineTextDefault(txt, x, y) {
+    p.textSize(60);  // ← SET SIZE HERE
+    p.textStyle(p.BOLD);
+    p.textAlign(p.CENTER, p.CENTER);
+
+    let steps     = 6;
+    let maxOffset = 7;
+
+    for (let i = steps; i > 2; i--) {
+      let amt    = p.map(i, 1, steps, 0, 1);
+      let c      = p.lerpColor(p.color(255, 8, 28), p.color(255, 255, 255), amt);
+      let offset = p.map(i, 1, steps, 0, maxOffset);
+
+      p.fill(c);
+      p.text(txt, x + offset, y);
+      p.text(txt, x - offset, y);
+      p.text(txt, x, y + offset);
+      p.text(txt, x, y - offset);
+      p.text(txt, x + offset, y + offset);
+      p.text(txt, x - offset, y - offset);
+      p.text(txt, x + offset, y - offset);
+      p.text(txt, x - offset, y + offset);
     }
 
-    function outlineText(txt, x, y, font) {
-      p.textFont(font);
-      p.textAlign(p.CENTER, p.CENTER);
+    p.fill(255);
+    p.text(txt, x, y);
+  }
 
-      let steps     = 6;
-      let maxOffset = 7;
+}); // end p5
+</script>
 
-      for (let i = steps; i > 2; i--) {
-        let amt    = p.map(i, 1, steps, 0, 1);
-        let c      = p.lerpColor(p.color(255, 8, 28), p.color(255, 255, 255), amt);
-        let offset = p.map(i, 1, steps, 0, maxOffset);
-
-        p.fill(c);
-        p.text(txt, x + offset, y);
-        p.text(txt, x - offset, y);
-        p.text(txt, x, y + offset);
-        p.text(txt, x, y - offset);
-        p.text(txt, x + offset, y + offset);
-        p.text(txt, x - offset, y - offset);
-        p.text(txt, x + offset, y - offset);
-        p.text(txt, x - offset, y + offset);
-      }
-
-      p.fill(255);
-      p.text(txt, x, y);
-      p.textSize(20);
-    }
-
-    function outlineTextDefault(txt, x, y) {
-      // Works without custom fonts
-      p.textSize(20);
-      p.textStyle(p.BOLD);
-      p.textAlign(p.CENTER, p.CENTER);
-
-      let steps     = 6;
-      let maxOffset = 7;
-
-      for (let i = steps; i > 2; i--) {
-        let amt    = p.map(i, 1, steps, 0, 1);
-        let c      = p.lerpColor(p.color(255, 8, 28), p.color(255, 255, 255), amt);
-        let offset = p.map(i, 1, steps, 0, maxOffset);
-
-        p.fill(c);
-        p.text(txt, x + offset, y);
-        p.text(txt, x - offset, y);
-        p.text(txt, x, y + offset);
-        p.text(txt, x, y - offset);
-        p.text(txt, x + offset, y + offset);
-        p.text(txt, x - offset, y - offset);
-        p.text(txt, x + offset, y - offset);
-        p.text(txt, x - offset, y + offset);
-      }
-
-      p.fill(255);
-      p.text(txt, x, y);
-    }
-
-  }); // end p5
-  </script>
 
 </body>
 </html>
