@@ -849,22 +849,22 @@
       ) {
         if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
           for (let i = 0; i < 10; i++) {
-            let r       = p.random(5, 50);
+            let r       = p.random(15, 100);
             let offsetX = p.random(-20, 20);
             let offsetY = p.random(-20, 20);
 
-            let c;
+            let c; //farba spreju
             if (p.random(1) < 0.5) {
-              c = p.color(
-                p.random(142, 247),
-                p.random(100, 245),
-                p.random(160, 245)
-              );
+              c = p.color( //cervene tmave odtiene
+                p.random(200, 255),
+                p.random(10, 50),
+                p.random(10, 50)
+              ); //highlighs
             } else {
               c = p.color(
-                p.random(200, 255),
-                p.random(219, 170),
-                p.random(209, 101)
+                p.random(230, 255),
+                p.random(20, 80),
+                p.random(50, 120)
               );
             }
 
