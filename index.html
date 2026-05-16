@@ -848,10 +848,10 @@
         p.mouseY > 0 && p.mouseY < p.height
       ) {
         if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
-          for (let i = 0; i < 10; i++) {
-            let r       = p.random(15, 100);
-            let offsetX = p.random(-20, 20);
-            let offsetY = p.random(-20, 20);
+          for (let i = 0; i < 60; i++) {
+            let r       = p.random(2, 25);
+            let offsetX = p.random(-80, 80);
+            let offsetY = p.random(-80, 80);
 
             let c; //farba spreju
             if (p.random(1) < 0.5) {
@@ -869,7 +869,7 @@
             }
 
             p.noStroke();
-            p.fill(c, 90);
+            p.fill(c, 40); //opacity
             p.ellipse(
               p.mouseX + offsetX,
               p.mouseY + offsetY,
