@@ -809,9 +809,9 @@ new p5(function(p) {
     wallImages[1] = p.loadImage('wall2.jpg');
     wallImages[2] = p.loadImage('wall3.jpg');
 
-    graffitiFonts[0] = p.loadFont('aAnotherTag.ttf');
-    graffitiFonts[1] = p.loadFont('Bigtimes.otf');
-    graffitiFonts[2] = p.loadFont('don-graffiti.ttf');
+    graffitiFonts[0] = p.loadFont('aAnotherTag.ttf', 100);
+    graffitiFonts[1] = p.loadFont('Bigtimes.otf', 40);
+    graffitiFonts[2] = p.loadFont('don-graffiti.ttf', 100);
   };
 
   p.setup = function() {
@@ -843,10 +843,10 @@ new p5(function(p) {
     ) {
       if (p.mouseX !== prevMouseX || p.mouseY !== prevMouseY) {
         
-        for (let i = 0; i < 50; i++) {  // ← MORE circles (was 80, now 200)
+        for (let i = 0; i < 100; i++) {  // ← MORE circles (was 80, now 200)
   
   let angle = p.random(p.TWO_PI);
-  let distance = p.random(0, 80);  // ← slightly tighter spread
+  let distance = p.random(0, 60);  // ← slightly tighter spread
   let offsetX = p.cos(angle) * distance;
   let offsetY = p.sin(angle) * distance;
   
